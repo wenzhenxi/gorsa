@@ -9,7 +9,7 @@
 获取扩展包:
 
 ```
-go get github.com/farmerx/gorsa
+go get github.com/wenzhenxi/gorsa
 ```
 
 具体使用:
