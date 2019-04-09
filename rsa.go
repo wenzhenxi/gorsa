@@ -5,6 +5,11 @@ import (
 	"crypto/rsa"
 	"errors"
 	"io/ioutil"
+	"crypto/sha1"
+	"crypto/rand"
+	"crypto"
+	"encoding/base64"
+	"crypto/sha256"
 )
 
 var RSA = &RSASecurity{}
@@ -91,4 +96,59 @@ func (rsas *RSASecurity) PriKeyDECRYPT(input []byte) ([]byte, error) {
 	}
 
 	return ioutil.ReadAll(output)
+}
+
+/**
+ * 使用RSAWithSHA1算法签名
+ */
+func (rsas *RSASecurity) SignSha1WithRsa(data string) (string, error) {
+	sha1Hash := sha1.New()
+	s_data := []byte(data)
+	sha1Hash.Write(s_data)
+	hashed := sha1Hash.Sum(nil)
+
+	signByte, err := rsa.SignPKCS1v15(rand.Reader, rsas.prikey, crypto.SHA1, hashed)
+	sign := base64.StdEncoding.EncodeToString(signByte)
+	return string(sign), err
+}
+
+/**
+ * 使用RSAWithSHA256算法签名
+ */
+func (rsas *RSASecurity) SignSha256WithRsa(data string) (string, error) {
+	sha256Hash := sha256.New()
+	s_data := []byte(data)
+	sha256Hash.Write(s_data)
+	hashed := sha256Hash.Sum(nil)
+
+	signByte, err := rsa.SignPKCS1v15(rand.Reader, rsas.prikey, crypto.SHA256, hashed)
+	sign := base64.StdEncoding.EncodeToString(signByte)
+	return string(sign), err
+}
+
+/**
+ * 使用RSAWithSHA1验证签名
+ */
+func (rsas *RSASecurity) VerifySignSha1WithRsa(data string, signData string) error {
+	sign, err := base64.StdEncoding.DecodeString(signData)
+	if err != nil {
+		return err
+	}
+	hash := sha1.New()
+	hash.Write([]byte(data))
+	return rsa.VerifyPKCS1v15(rsas.pubkey, crypto.SHA1, hash.Sum(nil), sign)
+}
+
+/**
+ * 使用RSAWithSHA256验证签名
+ */
+func (rsas *RSASecurity) VerifySignSha256WithRsa(data string, signData string) error {
+	sign, err := base64.StdEncoding.DecodeString(signData)
+	if err != nil {
+		return err
+	}
+	hash := sha256.New()
+	hash.Write([]byte(data))
+
+	return rsa.VerifyPKCS1v15(rsas.pubkey, crypto.SHA256, hash.Sum(nil), sign)
 }
