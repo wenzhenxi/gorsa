@@ -2,14 +2,15 @@ package gorsa
 
 import (
 	"bytes"
+	"crypto"
+	"crypto/md5"
+	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha1"
+	"crypto/sha256"
+	"encoding/base64"
 	"errors"
 	"io/ioutil"
-	"crypto/sha1"
-	"crypto/rand"
-	"crypto"
-	"encoding/base64"
-	"crypto/sha256"
 )
 
 var RSA = &RSASecurity{}
@@ -96,6 +97,20 @@ func (rsas *RSASecurity) PriKeyDECRYPT(input []byte) ([]byte, error) {
 	}
 
 	return ioutil.ReadAll(output)
+}
+
+/**
+ * 使用RSAWithMD5算法签名
+ */
+func (rsas *RSASecurity) SignMd5WithRsa(data string) (string, error) {
+	md5Hash := md5.New()
+	s_data := []byte(data)
+	md5Hash.Write(s_data)
+	hashed := md5Hash.Sum(nil)
+
+	signByte, err := rsa.SignPKCS1v15(rand.Reader, rsas.prikey, crypto.MD5, hashed)
+	sign := base64.StdEncoding.EncodeToString(signByte)
+	return string(sign), err
 }
 
 /**
