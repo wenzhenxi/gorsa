@@ -1,6 +1,6 @@
 package gorsa
 
-// 使用RSAWithSHA1算法签名
+// 使用RSAWithMD5算法签名
 func SignMd5WithRsa(data string, privateKey string) (string, error) {
 	grsa := RSASecurity{}
 	grsa.SetPrivateKey(privateKey)
@@ -36,6 +36,13 @@ func SignSha256WithRsa(data string, privateKey string) (string, error) {
 		return "", err
 	}
 	return sign, err
+}
+
+// 使用RSAWithMD5验证签名
+func VerifySignMd5WithRsa(data string, signData string, publicKey string) error {
+	grsa := RSASecurity{}
+	grsa.SetPublicKey(publicKey)
+	return grsa.VerifySignMd5WithRsa(data, signData)
 }
 
 // 使用RSAWithSHA1验证签名

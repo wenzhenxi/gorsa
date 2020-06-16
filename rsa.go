@@ -142,6 +142,19 @@ func (rsas *RSASecurity) SignSha256WithRsa(data string) (string, error) {
 }
 
 /**
+ * 使用RSAWithMD5验证签名
+ */
+func (rsas *RSASecurity) VerifySignMd5WithRsa(data string, signData string) error {
+	sign, err := base64.StdEncoding.DecodeString(signData)
+	if err != nil {
+		return err
+	}
+	hash := md5.New()
+	hash.Write([]byte(data))
+	return rsa.VerifyPKCS1v15(rsas.pubkey, crypto.SHA1, hash.Sum(nil), sign)
+}
+
+/**
  * 使用RSAWithSHA1验证签名
  */
 func (rsas *RSASecurity) VerifySignSha1WithRsa(data string, signData string) error {
