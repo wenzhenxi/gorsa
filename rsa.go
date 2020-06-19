@@ -151,7 +151,7 @@ func (rsas *RSASecurity) VerifySignMd5WithRsa(data string, signData string) erro
 	}
 	hash := md5.New()
 	hash.Write([]byte(data))
-	return rsa.VerifyPKCS1v15(rsas.pubkey, crypto.SHA1, hash.Sum(nil), sign)
+	return rsa.VerifyPKCS1v15(rsas.pubkey, crypto.MD5, hash.Sum(nil), sign)
 }
 
 /**
