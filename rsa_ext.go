@@ -32,7 +32,10 @@ func getPubKey(publickey []byte) (*rsa.PublicKey, error) {
 	// x509 parse public key
 	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
-		return nil, err
+		pub, err = x509.ParsePKCS1PublicKey(block.Bytes)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return pub.(*rsa.PublicKey), err
 }
