@@ -2,14 +2,15 @@ package gorsa
 
 import (
 	"bytes"
+	"crypto"
+	"crypto/md5"
+	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha1"
+	"crypto/sha256"
+	"encoding/base64"
 	"errors"
 	"io/ioutil"
-	"crypto/sha1"
-	"crypto/rand"
-	"crypto"
-	"encoding/base64"
-	"crypto/sha256"
 )
 
 var RSA = &RSASecurity{}
@@ -99,6 +100,20 @@ func (rsas *RSASecurity) PriKeyDECRYPT(input []byte) ([]byte, error) {
 }
 
 /**
+ * 使用RSAWithMD5算法签名
+ */
+func (rsas *RSASecurity) SignMd5WithRsa(data string) (string, error) {
+	md5Hash := md5.New()
+	s_data := []byte(data)
+	md5Hash.Write(s_data)
+	hashed := md5Hash.Sum(nil)
+
+	signByte, err := rsa.SignPKCS1v15(rand.Reader, rsas.prikey, crypto.MD5, hashed)
+	sign := base64.StdEncoding.EncodeToString(signByte)
+	return string(sign), err
+}
+
+/**
  * 使用RSAWithSHA1算法签名
  */
 func (rsas *RSASecurity) SignSha1WithRsa(data string) (string, error) {
@@ -124,6 +139,19 @@ func (rsas *RSASecurity) SignSha256WithRsa(data string) (string, error) {
 	signByte, err := rsa.SignPKCS1v15(rand.Reader, rsas.prikey, crypto.SHA256, hashed)
 	sign := base64.StdEncoding.EncodeToString(signByte)
 	return string(sign), err
+}
+
+/**
+ * 使用RSAWithMD5验证签名
+ */
+func (rsas *RSASecurity) VerifySignMd5WithRsa(data string, signData string) error {
+	sign, err := base64.StdEncoding.DecodeString(signData)
+	if err != nil {
+		return err
+	}
+	hash := md5.New()
+	hash.Write([]byte(data))
+	return rsa.VerifyPKCS1v15(rsas.pubkey, crypto.MD5, hash.Sum(nil), sign)
 }
 
 /**
