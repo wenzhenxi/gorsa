@@ -2,6 +2,7 @@ package gorsa
 
 import (
 	"encoding/base64"
+	"encoding/hex"
 )
 
 // 公钥加密
@@ -38,15 +39,15 @@ func PublicDecrypt(data, publicKey string) (string, error) {
 	databs, _ := base64.StdEncoding.DecodeString(data)
 
 	grsa := RSASecurity{}
-	grsa.SetPublicKey(publicKey)
+	if err := grsa.SetPublicKey(publicKey);err !=nil{
+		return "",err
+	}
 
-	rsadata, err := grsa.PubKeyDECRYPT([]byte(databs))
+	rsadata, err := grsa.PubKeyDECRYPT(databs)
 	if err != nil {
 		return "", err
 	}
-
-	return string(rsadata), nil
-
+	return hex.EncodeToString(rsadata),nil
 }
 
 // 私钥解密
@@ -55,14 +56,15 @@ func PriKeyDecrypt(data, privateKey string) (string, error) {
 	databs, _ := base64.StdEncoding.DecodeString(data)
 
 	grsa := RSASecurity{}
+
 	if err := grsa.SetPrivateKey(privateKey); err != nil {
 		return "", err
 	}
 
-	rsadata, err := grsa.PriKeyDECRYPT([]byte(databs))
+	rsadata, err := grsa.PriKeyDECRYPT(databs)
 	if err != nil {
 		return "", err
 	}
 
-	return string(rsadata), nil
+	return hex.EncodeToString(rsadata), nil
 }
