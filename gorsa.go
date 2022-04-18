@@ -56,7 +56,8 @@ func PriKeyDecrypt(data, privateKey string) (string, error) {
 	databs, _ := base64.StdEncoding.DecodeString(data)
 
 	grsa := RSASecurity{}
-	if err := grsa.SetPrivateKey(privateKey);err !=nil{
+
+	if err := grsa.SetPrivateKey(privateKey); err != nil {
 		return "", err
 	}
 
