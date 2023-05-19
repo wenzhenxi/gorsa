@@ -4,9 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/pem"
-	"fmt"
 )
 
 type RSAKey struct {
@@ -19,7 +17,6 @@ type RSAKey struct {
 // GenerateRSAKey 生成RSA私钥和公钥
 // bits 证书大小
 func GenerateRSAKey(bits int) (resp RSAKey, err error) {
-
 	// -------------------------- 设置私钥 --------------------------
 	// GenerateKey 函数使用随机数据生成器，random生成一对具有指定字位数的RSA密钥
 	// Reader 是一个全局、共享的密码用强随机数生成器
@@ -32,12 +29,14 @@ func GenerateRSAKey(bits int) (resp RSAKey, err error) {
 	X509PrivateKey := x509.MarshalPKCS1PrivateKey(privateKey)
 	//使用pem格式对x509输出的内容进行编码
 	//构建一个pem.Block结构体对象
-	privateBlock := pem.Block{Type: "RSA Private Key", Bytes: X509PrivateKey}
+	privateBlock := pem.Block{
+		Type:  "Private key",
+		Bytes: X509PrivateKey,
+	}
 	// 保存到内存
 	privateKeyPem := pem.EncodeToMemory(&privateBlock)
-	privateKeyStr := base64.StdEncoding.EncodeToString(privateKeyPem)
 	// 设置返回值：私钥
-	resp.PriStr = fmt.Sprintf("-----BEGIN Private key-----\n%v\n-----END Private key-----\n", privateKeyStr)
+	resp.PriStr = string(privateKeyPem)
 	resp.PriKey = privateKey
 
 	// -------------------------- 设置公钥 --------------------------
@@ -50,12 +49,14 @@ func GenerateRSAKey(bits int) (resp RSAKey, err error) {
 	}
 	//pem格式编码
 	//创建一个pem.Block结构体对象
-	publicBlock := pem.Block{Type: "RSA Public Key", Bytes: X509PublicKey}
+	publicBlock := pem.Block{
+		Type:  "Public key",
+		Bytes: X509PublicKey,
+	}
 	//保存到内存
 	publicKeyPem := pem.EncodeToMemory(&publicBlock)
-	publicKeyStr := base64.StdEncoding.EncodeToString(publicKeyPem)
 	// 设置返回值：公钥
-	resp.PubStr = fmt.Sprintf("-----BEGIN Public key-----\n%v\n-----END Public key-----\n", publicKeyStr)
+	resp.PubStr = string(publicKeyPem)
 	resp.PubKey = &publicKey
 	return
 }
