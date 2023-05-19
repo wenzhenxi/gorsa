@@ -9,14 +9,16 @@ import (
 	"fmt"
 )
 
+type RSAKey struct {
+	PubStr string          //公钥字符串
+	PriStr string          //私钥字符串
+	PubKey *rsa.PublicKey  //公钥
+	PriKey *rsa.PrivateKey //私钥
+}
+
 // GenerateRSAKey 生成RSA私钥和公钥
 // bits 证书大小
-func GenerateRSAKey(bits int) (resp struct {
-	pubStr string          //公钥字符串
-	priStr string          //私钥字符串
-	pubKey *rsa.PublicKey  //公钥
-	priKey *rsa.PrivateKey //私钥
-}, err error) {
+func GenerateRSAKey(bits int) (resp RSAKey, err error) {
 
 	// -------------------------- 设置私钥 --------------------------
 	// GenerateKey 函数使用随机数据生成器，random生成一对具有指定字位数的RSA密钥
@@ -34,9 +36,9 @@ func GenerateRSAKey(bits int) (resp struct {
 	// 保存到内存
 	privateKeyPem := pem.EncodeToMemory(&privateBlock)
 	privateKeyStr := base64.StdEncoding.EncodeToString(privateKeyPem)
-
-	resp.priStr = fmt.Sprintf("-----BEGIN Private key-----\n%v\n-----END Private key-----\n", privateKeyStr)
-	resp.priKey = privateKey
+	// 设置返回值：私钥
+	resp.PriStr = fmt.Sprintf("-----BEGIN Private key-----\n%v\n-----END Private key-----\n", privateKeyStr)
+	resp.PriKey = privateKey
 
 	// -------------------------- 设置公钥 --------------------------
 	//获取公钥的数据
@@ -52,8 +54,8 @@ func GenerateRSAKey(bits int) (resp struct {
 	//保存到内存
 	publicKeyPem := pem.EncodeToMemory(&publicBlock)
 	publicKeyStr := base64.StdEncoding.EncodeToString(publicKeyPem)
-
-	resp.pubStr = fmt.Sprintf("-----BEGIN Public key-----\n%v\n-----END Public key-----\n", publicKeyStr)
-	resp.pubKey = &publicKey
+	// 设置返回值：公钥
+	resp.PubStr = fmt.Sprintf("-----BEGIN Public key-----\n%v\n-----END Public key-----\n", publicKeyStr)
+	resp.PubKey = &publicKey
 	return
 }
