@@ -5,66 +5,80 @@ import (
 	"encoding/hex"
 )
 
-// 公钥加密
+// PublicEncrypt 公钥加密
 func PublicEncrypt(data, publicKey string) (string, error) {
 
-	grsa := RSASecurity{}
-	grsa.SetPublicKey(publicKey)
+	gRsa := RSASecurity{}
+	gRsa.SetPublicKey(publicKey)
 
-	rsadata, err := grsa.PubKeyENCTYPT([]byte(data))
+	rsaData, err := gRsa.PubKeyENCTYPT([]byte(data))
 	if err != nil {
 		return "", err
 	}
 
-	return base64.StdEncoding.EncodeToString(rsadata), nil
+	baseData := base64.StdEncoding.EncodeToString(rsaData)
+	return hex.EncodeToString([]byte(baseData)), nil
 }
 
-// 私钥加密
+// PriKeyEncrypt 私钥加密
 func PriKeyEncrypt(data, privateKey string) (string, error) {
 
-	grsa := RSASecurity{}
-	grsa.SetPrivateKey(privateKey)
+	gRsa := RSASecurity{}
+	gRsa.SetPrivateKey(privateKey)
 
-	rsadata, err := grsa.PriKeyENCTYPT([]byte(data))
+	rsaData, err := gRsa.PriKeyENCTYPT([]byte(data))
 	if err != nil {
 		return "", err
 	}
 
-	return base64.StdEncoding.EncodeToString(rsadata), nil
+	baseData := base64.StdEncoding.EncodeToString(rsaData)
+	return hex.EncodeToString([]byte(baseData)), nil
 }
 
-// 公钥解密
+// PublicDecrypt 公钥解密
 func PublicDecrypt(data, publicKey string) (string, error) {
-
-	databs, _ := base64.StdEncoding.DecodeString(data)
-
-	grsa := RSASecurity{}
-	if err := grsa.SetPublicKey(publicKey);err !=nil{
-		return "",err
-	}
-
-	rsadata, err := grsa.PubKeyDECRYPT(databs)
+	dataByte, err := hex.DecodeString(data)
 	if err != nil {
 		return "", err
 	}
-	return hex.EncodeToString(rsadata),nil
+
+	dataBs, err := base64.StdEncoding.DecodeString(string(dataByte))
+	if err != nil {
+		return "", err
+	}
+
+	gRsa := RSASecurity{}
+	if err := gRsa.SetPublicKey(publicKey); err != nil {
+		return "", err
+	}
+
+	rsaData, err := gRsa.PubKeyDECRYPT(dataBs)
+	if err != nil {
+		return "", err
+	}
+
+	return string(rsaData), nil
 }
 
-// 私钥解密
+// PriKeyDecrypt 私钥解密
 func PriKeyDecrypt(data, privateKey string) (string, error) {
-
-	databs, _ := base64.StdEncoding.DecodeString(data)
-
-	grsa := RSASecurity{}
-
-	if err := grsa.SetPrivateKey(privateKey); err != nil {
-		return "", err
-	}
-
-	rsadata, err := grsa.PriKeyDECRYPT(databs)
+	dataByte, err := hex.DecodeString(data)
 	if err != nil {
 		return "", err
 	}
 
-	return hex.EncodeToString(rsadata), nil
+	dataBs, _ := base64.StdEncoding.DecodeString(string(dataByte))
+
+	gRsa := RSASecurity{}
+
+	if err := gRsa.SetPrivateKey(privateKey); err != nil {
+		return "", err
+	}
+
+	rsaData, err := gRsa.PriKeyDECRYPT(dataBs)
+	if err != nil {
+		return "", err
+	}
+
+	return string(rsaData), nil
 }
